@@ -1,4 +1,4 @@
-# 使用Vue.js全家桶重构CNodeJS中文社区
+# 使用Vue.js全家桶重构币乎
 
 > 线上地址：https://liuxuanqiang.github.io/vue-bihu
 
@@ -49,4 +49,4 @@
 * webpack
 
 ### 致谢
-项目基于币乎的API开发而成，币乎：https://bihu.com/
+项目接口来源于币乎：https://bihu.com/
