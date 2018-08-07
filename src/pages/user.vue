@@ -23,7 +23,9 @@
                     <div class="article-list">
                         <ul>
                             <li v-for="item in userArticleList" :key="item.id">
-                                <img :src="'https://oss02.bihu.com/' + item.snapimage" alt="">
+                                <div class="img-outer">
+                                    <img :src="'https://oss02.bihu.com/' + item.snapimage | formatImgUrl" alt="">
+                                </div>
                                 <router-link :to="'/article/' + item.id" class="title">
                                     <h3>{{item.title}}</h3>
                                 </router-link>
@@ -62,7 +64,12 @@ export default {
     this.getUserInfo();
     this.getUserArticleList();
   },
-  watch: {},
+  filters: {
+    formatImgUrl(url) {
+      var newUrl = url.split(",")[0];
+      return newUrl;
+    }
+  },
   methods: {
     getUserInfo() {
       this.$axios
@@ -143,11 +150,20 @@ export default {
         overflow: hidden;
         padding: 15px 0;
         border-top: 1px solid #e6e6e6;
-        img {
+        .img-outer {
           float: left;
           width: 150px;
           height: 97px;
           margin-right: 15px;
+          background-color: #dde6ec;
+          background-image: url(https://oss02.bihu.com/img/bihu_user_default_icon.png?x-oss-process=style/size_head);
+          background-size: 50px 50px;
+          background-position: center center;
+          background-repeat: no-repeat;
+          img {
+            width: 100%;
+            height: 97px;
+          }
         }
         .title {
           color: #333;
