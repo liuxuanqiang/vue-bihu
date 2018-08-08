@@ -11,17 +11,17 @@
                 <div>
                     <ul class="head-list">
                         <li>
-                            <a class="active" href="/people/87858/?index=1">文章({{userInfo.artNum}})</a>
+                            <a :class="tabIndex == 1 ? 'active' : ''" href="javascript:;" @click="changeTabs(1)">文章({{userInfo.artNum}})</a>
                         </li>
                         <li>
-                            <a class="" href="/people/87858/?index=2">关注({{userInfo.follows}})</a>
+                            <a :class="tabIndex == 2 ? 'active' : ''" href="javascript:;" @click="changeTabs(2)">关注({{userInfo.follows}})</a>
                         </li>
                         <li>
-                            <a class="" href="/people/87858/?index=3">粉丝({{userInfo.fans}})</a>
+                            <a :class="tabIndex == 3 ? 'active' : ''" href="javascript:;" @click="changeTabs(3)">粉丝({{userInfo.fans}})</a>
                         </li>
                     </ul>
-                    <div class="article-list">
-                        <ul>
+                    <div>
+                        <ul :class="['article-list', tabIndex == 1 ? '' : 'hide']">
                             <li v-for="item in userArticleList" :key="item.id">
                                 <div class="img-outer">
                                     <img :src="'https://oss02.bihu.com/' + item.snapimage | formatImgUrl" alt="">
@@ -36,6 +36,24 @@
                                     <span><i class="glyphicon glyphicon-thumbs-down"></i>{{item.downs}}</span>
                                     <span><i class="glyphicon glyphicon-comment"></i>{{item.cmts}}</span>
                                 </p>
+                            </li>
+                        </ul>
+                        <ul :class="['follow-list', tabIndex == 2 ? '' : 'hide']">
+                            <li v-for="item in userFollowList" :key="item.userId">
+                                <router-link :to="'/user/' + item.userId" class="title">
+                                    <img :src="'https://oss02.bihu.com/' + item.userIcon" alt="">
+                                    <span class="user-name">{{item.userName}}</span>
+                                </router-link>
+                                <span class="fans-num">粉丝：{{item.fans}}</span>
+                            </li>
+                        </ul>
+                        <ul :class="['follow-list', tabIndex == 3 ? '' : 'hide']">
+                            <li v-for="item in userFansList" :key="item.userId">
+                                <router-link :to="'/user/' + item.userId" class="title">
+                                    <img :src="'https://oss02.bihu.com/' + item.userIcon" alt="">
+                                    <span class="user-name">{{item.userName}}</span>
+                                </router-link>
+                                <span class="fans-num">粉丝：{{item.fans}}</span>
                             </li>
                         </ul>
                     </div>
@@ -55,9 +73,11 @@ export default {
   },
   data() {
     return {
-      userId: this.$route.params.userId,
       userInfo: {},
-      userArticleList: []
+      userArticleList: [],
+      userFollowList: [],
+      userFansList: [],
+      tabIndex: 1
     };
   },
   created() {
@@ -70,11 +90,18 @@ export default {
       return newUrl;
     }
   },
+  watch: {
+    $route(to, from) {
+      this.getUserInfo();
+      this.changeTabs(1);
+    }
+  },
   methods: {
     getUserInfo() {
+      let userId = this.$route.params.userId;
       this.$axios
         .post("https://be02.bihu.com/bihube-pc/api/content/show/userHomePage", {
-          queryUserId: this.userId
+          queryUserId: userId
         })
         .then(res => {
           if (res.data.resMsg === "success") {
@@ -83,6 +110,7 @@ export default {
         });
     },
     getUserArticleList() {
+      let userId = this.$route.params.userId;
       this.$axios
         .post(
           "https://be02.bihu.com/bihube-pc/api/content/show/getUserArtList",
@@ -90,7 +118,7 @@ export default {
             challenge: "",
             crash: 1,
             pageNum: 1,
-            queryUserId: this.userId
+            queryUserId: userId
           }
         )
         .then(res => {
@@ -98,6 +126,56 @@ export default {
             this.userArticleList = res.data.data.list;
           }
         });
+    },
+    getUserFollowList() {
+      let userId = this.$route.params.userId;
+      this.$axios
+        .post(
+          "https://be02.bihu.com/bihube-pc/api/content/show/getUserFollowList",
+          {
+            pageNum: 1,
+            queryUserId: userId
+          }
+        )
+        .then(res => {
+          if (res.data.resMsg === "success") {
+            this.userFollowList = res.data.data.list;
+          }
+        });
+    },
+    getUserFansList() {
+      let userId = this.$route.params.userId;
+      this.$axios
+        .post(
+          "https://be02.bihu.com/bihube-pc/api/content/show/getUserFansList",
+          {
+            pageNum: 1,
+            queryUserId: userId
+          }
+        )
+        .then(res => {
+          if (res.data.resMsg === "success") {
+            this.userFansList = res.data.data.list;
+          }
+        });
+    },
+    changeTabs(index) {
+      switch (index) {
+        case 1:
+          this.getUserArticleList();
+          this.tabIndex = 1;
+          break;
+        case 2:
+          this.getUserFollowList();
+          this.tabIndex = 2;
+          break;
+        case 3:
+          this.getUserFansList();
+          this.tabIndex = 3;
+          break;
+        default:
+          break;
+      }
     }
   }
 };
@@ -123,7 +201,8 @@ export default {
     }
   }
   .head-list {
-    padding: 20px 0 5px 0;
+    padding: 20px 0 15px 0;
+    border-bottom: 1px solid #e6e6e6;
     li {
       margin-right: 30px;
       display: inline-block;
@@ -141,64 +220,90 @@ export default {
     }
   }
   .article-list {
-    ul {
-      padding: 0;
-      li {
-        position: relative;
-        list-style: none;
-        height: auto;
-        overflow: hidden;
-        padding: 15px 0;
-        border-top: 1px solid #e6e6e6;
-        .img-outer {
-          float: left;
-          width: 150px;
+    padding: 0;
+    li {
+      position: relative;
+      list-style: none;
+      height: auto;
+      overflow: hidden;
+      padding: 15px 0;
+      border-bottom: 1px solid #e6e6e6;
+      .img-outer {
+        float: left;
+        width: 150px;
+        height: 97px;
+        margin-right: 15px;
+        background-color: #dde6ec;
+        background-image: url(https://oss02.bihu.com/img/bihu_user_default_icon.png?x-oss-process=style/size_head);
+        background-size: 50px 50px;
+        background-position: center center;
+        background-repeat: no-repeat;
+        img {
+          width: 100%;
           height: 97px;
-          margin-right: 15px;
-          background-color: #dde6ec;
-          background-image: url(https://oss02.bihu.com/img/bihu_user_default_icon.png?x-oss-process=style/size_head);
-          background-size: 50px 50px;
-          background-position: center center;
-          background-repeat: no-repeat;
-          img {
-            width: 100%;
-            height: 97px;
-          }
         }
-        .title {
+      }
+      .title {
+        color: #333;
+        h3 {
+          margin-top: 0;
+          padding-top: 2px;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
           color: #333;
-          h3 {
-            margin-top: 0;
-            padding-top: 2px;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            color: #333;
-            font-size: 18px;
-            font-weight: bold;
-          }
+          font-size: 18px;
+          font-weight: bold;
         }
-        .summary {
+      }
+      .summary {
+        color: #777;
+      }
+      .thumbs {
+        position: absolute;
+        bottom: 13px;
+        left: 175px;
+        margin: 0;
+        > span {
+          margin-right: 20px;
           color: #777;
-        }
-        .thumbs {
-          position: absolute;
-          bottom: 13px;
-          left: 175px;
-          margin: 0;
-          > span {
-            margin-right: 20px;
-            color: #777;
-            i {
-              margin-right: 3px;
-              &.glyphicon-comment {
-                vertical-align: -1px;
-              }
+          i {
+            margin-right: 3px;
+            &.glyphicon-comment {
+              vertical-align: -1px;
             }
           }
         }
       }
     }
   }
+  .follow-list {
+    padding: 0;
+    li {
+      padding: 10px 0;
+      list-style: none;
+      a {
+        text-decoration: none;
+        color: #333;
+      }
+      img {
+        width: 40px;
+        height: 40px;
+        margin-right: 5px;
+        border-radius: 50%;
+      }
+      .user-name {
+        font-size: 14px;
+        font-weight: bold;
+      }
+      .fans-num {
+        margin-left: 30px;
+        color: #8e8e8e;
+      }
+    }
+  }
+}
+.hide {
+  display: none;
 }
 </style>
