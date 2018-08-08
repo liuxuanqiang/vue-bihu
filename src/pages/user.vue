@@ -28,8 +28,8 @@
                                 </div>
                                 <router-link :to="'/article/' + item.id" class="title">
                                     <h3>{{item.title}}</h3>
+                                    <p class="summary" v-html="item.snapcontent + '...'"></p>
                                 </router-link>
-                                <p class="summary" v-html="item.snapcontent + '...'"></p>
                                 <p class="thumbs">
                                     <span><i class="glyphicon glyphicon-yen"></i>{{item.money}}</span>
                                     <span><i class="glyphicon glyphicon-thumbs-up"></i>{{item.ups}}</span>
@@ -302,8 +302,5 @@ export default {
       }
     }
   }
-}
-.hide {
-  display: none;
 }
 </style>
