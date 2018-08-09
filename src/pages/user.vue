@@ -21,8 +21,9 @@
                         </li>
                     </ul>
                     <div>
-                        <ul :class="['article-list', tabIndex == 1 ? '' : 'hide']">
-                            <li v-for="item in userArticleList" :key="item.id">
+                      <section :class="['article-list', tabIndex == 1 ? '' : 'hide']">
+                        <ul>
+                            <li v-for="item in userArticle.list" :key="item.id">
                                 <div class="img-outer">
                                     <img :src="'https://oss02.bihu.com/' + item.snapimage | formatImgUrl" alt="">
                                 </div>
@@ -38,8 +39,11 @@
                                 </p>
                             </li>
                         </ul>
-                        <ul :class="['follow-list', tabIndex == 2 ? '' : 'hide']">
-                            <li v-for="item in userFollowList" :key="item.userId">
+                        <Pagination v-if="isRender && userArticle.pageSize < userArticle.total" :total="userArticle.total" @pagechange="pagechange"></Pagination>
+                      </section>
+                      <section :class="['follow-list', tabIndex == 2 ? '' : 'hide']">
+                          <ul>
+                            <li v-for="item in userFollow.list" :key="item.userId">
                                 <router-link :to="'/user/' + item.userId" class="title">
                                     <img :src="'https://oss02.bihu.com/' + item.userIcon" alt="">
                                     <span class="user-name">{{item.userName}}</span>
@@ -47,8 +51,11 @@
                                 <span class="fans-num">粉丝：{{item.fans}}</span>
                             </li>
                         </ul>
-                        <ul :class="['follow-list', tabIndex == 3 ? '' : 'hide']">
-                            <li v-for="item in userFansList" :key="item.userId">
+                        <Pagination v-if="isRender && userFollow.pageSize < userFollow.total" :total="userFollow.total" @pagechange="pagechange"></Pagination>
+                      </section>
+                      <section :class="['follow-list', tabIndex == 3 ? '' : 'hide']">
+                        <ul>
+                            <li v-for="item in userFans.list" :key="item.userId">
                                 <router-link :to="'/user/' + item.userId" class="title">
                                     <img :src="'https://oss02.bihu.com/' + item.userIcon" alt="">
                                     <span class="user-name">{{item.userName}}</span>
@@ -56,6 +63,8 @@
                                 <span class="fans-num">粉丝：{{item.fans}}</span>
                             </li>
                         </ul>
+                        <Pagination v-if="isRender && userFans.pageSize < userFans.total" :total="userFans.total" @pagechange="pagechange"></Pagination>
+                      </section>
                     </div>
                 </div>
             </div>
@@ -66,18 +75,21 @@
 <script>
 import Header from "../components/header";
 import Footer from "../components/footer";
+import Pagination from "../components/pagination";
 export default {
   components: {
     Header,
-    Footer
+    Footer,
+    Pagination
   },
   data() {
     return {
       userInfo: {},
-      userArticleList: [],
-      userFollowList: [],
-      userFansList: [],
-      tabIndex: 1
+      userArticle: {},
+      userFollow: {},
+      userFans: {},
+      tabIndex: 1,
+      isRender: false // 重新渲染分页组件（定位到第一页）
     };
   },
   created() {
@@ -112,7 +124,7 @@ export default {
     },
 
     // 获取用户文章
-    getUserArticleList() {
+    getUserArticleList(pageNum = 1) {
       let userId = this.$route.params.userId;
       this.$axios
         .post(
@@ -120,55 +132,59 @@ export default {
           {
             challenge: "",
             crash: 1,
-            pageNum: 1,
+            pageNum: pageNum,
             queryUserId: userId
           }
         )
         .then(res => {
           if (res.data.resMsg === "success") {
-            this.userArticleList = res.data.data.list;
+            this.userArticle = res.data.data;
+            this.isRender = true;
           }
         });
     },
 
     // 获取用户关注
-    getUserFollowList() {
+    getUserFollowList(pageNum = 1) {
       let userId = this.$route.params.userId;
       this.$axios
         .post(
           "https://be02.bihu.com/bihube-pc/api/content/show/getUserFollowList",
           {
-            pageNum: 1,
+            pageNum: pageNum,
             queryUserId: userId
           }
         )
         .then(res => {
           if (res.data.resMsg === "success") {
-            this.userFollowList = res.data.data.list;
+            this.userFollow = res.data.data;
+            this.isRender = true;
           }
         });
     },
 
     // 获取用户粉丝
-    getUserFansList() {
+    getUserFansList(pageNum = 1) {
       let userId = this.$route.params.userId;
       this.$axios
         .post(
           "https://be02.bihu.com/bihube-pc/api/content/show/getUserFansList",
           {
-            pageNum: 1,
+            pageNum: pageNum,
             queryUserId: userId
           }
         )
         .then(res => {
           if (res.data.resMsg === "success") {
-            this.userFansList = res.data.data.list;
+            this.userFans = res.data.data;
+            this.isRender = true;
           }
         });
     },
 
     // 文章/关注/粉丝Tab切换
     changeTabs(index) {
+      this.isRender = false;
       switch (index) {
         case 1:
           this.getUserArticleList();
@@ -184,6 +200,17 @@ export default {
           break;
         default:
           break;
+      }
+    },
+
+    // 分页
+    pagechange(currentPage) {
+      if (this.tabIndex == 1) {
+        this.getUserArticleList(currentPage);
+      } else if (this.tabIndex == 2) {
+        this.getUserFollowList(currentPage);
+      } else {
+        this.getUserFansList(currentPage);
       }
     }
   }
@@ -229,57 +256,58 @@ export default {
     }
   }
   .article-list {
-    padding: 0;
-    li {
-      position: relative;
-      list-style: none;
-      height: auto;
-      overflow: hidden;
-      padding: 15px 0;
-      border-bottom: 1px solid #e6e6e6;
-      .img-outer {
-        float: left;
-        width: 150px;
-        height: 97px;
-        margin-right: 15px;
-        background-color: #dde6ec;
-        background-image: url(https://oss02.bihu.com/img/bihu_user_default_icon.png?x-oss-process=style/size_head);
-        background-size: 50px 50px;
-        background-position: center center;
-        background-repeat: no-repeat;
-        img {
-          width: 100%;
+    > ul {
+      padding: 0;
+      li {
+        position: relative;
+        list-style: none;
+        height: 127px;
+        padding: 15px 0;
+        border-bottom: 1px solid #e6e6e6;
+        .img-outer {
+          float: left;
+          width: 150px;
           height: 97px;
+          margin-right: 15px;
+          background-color: #dde6ec;
+          background-image: url(https://oss02.bihu.com/img/bihu_user_default_icon.png?x-oss-process=style/size_head);
+          background-size: 50px 50px;
+          background-position: center center;
+          background-repeat: no-repeat;
+          img {
+            width: 100%;
+            height: 97px;
+          }
         }
-      }
-      .title {
-        color: #333;
-        h3 {
-          margin-top: 0;
-          padding-top: 2px;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          overflow: hidden;
+        .title {
           color: #333;
-          font-size: 18px;
-          font-weight: bold;
+          h3 {
+            margin-top: 0;
+            padding-top: 2px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            color: #333;
+            font-size: 18px;
+            font-weight: bold;
+          }
         }
-      }
-      .summary {
-        color: #777;
-      }
-      .thumbs {
-        position: absolute;
-        bottom: 13px;
-        left: 175px;
-        margin: 0;
-        > span {
-          margin-right: 20px;
+        .summary {
           color: #777;
-          i {
-            margin-right: 3px;
-            &.glyphicon-comment {
-              vertical-align: -1px;
+        }
+        .thumbs {
+          position: absolute;
+          bottom: 13px;
+          left: 175px;
+          margin: 0;
+          > span {
+            margin-right: 20px;
+            color: #777;
+            i {
+              margin-right: 3px;
+              &.glyphicon-comment {
+                vertical-align: -1px;
+              }
             }
           }
         }
@@ -287,27 +315,29 @@ export default {
     }
   }
   .follow-list {
-    padding: 0;
-    li {
-      padding: 10px 0;
-      list-style: none;
-      a {
-        text-decoration: none;
-        color: #333;
-      }
-      img {
-        width: 40px;
-        height: 40px;
-        margin-right: 5px;
-        border-radius: 50%;
-      }
-      .user-name {
-        font-size: 14px;
-        font-weight: bold;
-      }
-      .fans-num {
-        margin-left: 30px;
-        color: #8e8e8e;
+    > ul {
+      padding: 0;
+      li {
+        padding: 10px 0;
+        list-style: none;
+        a {
+          text-decoration: none;
+          color: #333;
+        }
+        img {
+          width: 40px;
+          height: 40px;
+          margin-right: 5px;
+          border-radius: 50%;
+        }
+        .user-name {
+          font-size: 14px;
+          font-weight: bold;
+        }
+        .fans-num {
+          margin-left: 30px;
+          color: #8e8e8e;
+        }
       }
     }
   }

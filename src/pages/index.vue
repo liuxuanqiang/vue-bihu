@@ -37,7 +37,7 @@
                   </div>
                 </li>
               </ul>
-              <Pagination :total="total" :current-page="currentPage" @pagechange="pagechange"></Pagination>
+              <Pagination v-if="isRender" :total="total" @pagechange="pagechange"></Pagination>
             </div>
         </main>
         <Footer></Footer>
@@ -58,7 +58,7 @@ export default {
       articleList: [],
       tabIndex: 1,
       total: 0,
-      currentPage: 1
+      isRender: false // 重新渲染分页组件（定位到第一页）
     };
   },
   filters: {
@@ -72,11 +72,11 @@ export default {
   },
   watch: {
     $route(to, from) {
+      this.isRender = false;
       this.getHotArtList();
     }
   },
   methods: {
-
     // 获取热门文章列表
     getHotArtList(pageNum = 1) {
       this.$axios
@@ -89,7 +89,7 @@ export default {
           if (res.data.resMsg === "success") {
             this.articleList = res.data.data.list;
             this.total = res.data.data.total;
-            this.currentPage = 1;
+            this.isRender = true;
           }
         });
     },
@@ -109,12 +109,14 @@ export default {
           if (res.data.resMsg === "success") {
             this.articleList = res.data.data.list;
             this.total = res.data.data.total;
+            this.isRender = true;
           }
         });
     },
 
     // 热门/最新Tab切换
     changeTabs(index) {
+      this.isRender = false;
       switch (index) {
         case 1:
           this.getHotArtList();

@@ -11,9 +11,9 @@
                 </div>
                 <div class="content" v-html="articleContent"></div>
                 <div class="comment">
-                    <h3>共{{commentList.length}}条评论</h3>
-                    <ul>
-                        <li v-for="item in commentList" :key="item.commentId">
+                    <h3>共{{comment.total}}条评论</h3>
+                    <ul class="list">
+                        <li v-for="item in comment.list" :key="item.commentId">
                             <router-link :to="'/user/' + item.user.userId">
                               <img :src="'https://oss02.bihu.com/' + item.user.userIcon" alt="" class="user-icon">
                               <span class="user-name">{{item.user.userName}}</span>
@@ -22,6 +22,7 @@
                             <p class="text">{{item.content}}</p>
                         </li>
                     </ul>
+                    <Pagination v-if="comment.pageSize < comment.total" :total="comment.total" @pagechange="pagechange"></Pagination>
                 </div>
             </div>
         </main>
@@ -31,24 +32,25 @@
 <script>
 import Header from "../components/header";
 import Footer from "../components/footer";
+import Pagination from "../components/pagination";
 export default {
   components: {
     Header,
-    Footer
+    Footer,
+    Pagination
   },
   data() {
     return {
       id: this.$route.params.id,
       article: {},
       articleContent: "",
-      commentList: []
+      comment: {}
     };
   },
   created() {
     this.getHotArtList();
   },
   methods: {
-
     // 获取文章内容
     getHotArtList() {
       this.$axios
@@ -72,10 +74,25 @@ export default {
                 }
               )
               .then(res => {
-                this.commentList = res.data.data.list;
+                this.comment = res.data.data;
               });
           }
         });
+    },
+    getComment(pageNum = 1) {
+      this.$axios
+        .post("https://be02.bihu.com/bihube-pc/bihu/comment/listrootcomment", {
+          articleId: this.id,
+          pageNum: pageNum
+        })
+        .then(res => {
+          this.comment = res.data.data;
+        });
+    },
+
+    // 点击分页
+    pagechange(currentPage) {
+      this.getComment(currentPage);
     }
   }
 };
@@ -112,7 +129,7 @@ export default {
       padding-bottom: 10px;
       border-bottom: 1px solid #e2e2e2;
     }
-    ul {
+    .list {
       padding: 0;
       li {
         padding: 5px 0;
