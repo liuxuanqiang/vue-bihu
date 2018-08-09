@@ -25,7 +25,7 @@ export default {
   width: 620px;
   padding: 20px 0 5px;
   background: #fff;
-  box-shadow: 1px 6px 12px rgba(0, 0, 0, 0.175);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
   &:before {
     position: absolute;
     top: -10px;

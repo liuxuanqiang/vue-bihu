@@ -37,6 +37,7 @@
                   </div>
                 </li>
               </ul>
+              <Pagination :total="total" :current-page="currentPage" @pagechange="pagechange"></Pagination>
             </div>
         </main>
         <Footer></Footer>
@@ -45,15 +46,19 @@
 <script>
 import Header from "../components/header";
 import Footer from "../components/footer";
+import Pagination from "../components/pagination";
 export default {
   components: {
     Header,
-    Footer
+    Footer,
+    Pagination
   },
   data() {
     return {
       articleList: [],
-      tabIndex: 1
+      tabIndex: 1,
+      total: 0,
+      currentPage: 1
     };
   },
   filters: {
@@ -71,33 +76,44 @@ export default {
     }
   },
   methods: {
-    getHotArtList() {
+
+    // 获取热门文章列表
+    getHotArtList(pageNum = 1) {
       this.$axios
         .post("https://be02.bihu.com/bihube-pc/api/content/show/hotArtList", {
           category: "recommend",
-          code: this.$route.query.code || ""
+          code: this.$route.query.code || "",
+          pageNum: pageNum
         })
         .then(res => {
           if (res.data.resMsg === "success") {
             this.articleList = res.data.data.list;
+            this.total = res.data.data.total;
+            this.currentPage = 1;
           }
         });
     },
-    getNewestArtList() {
+
+    // 获取最新文章列表
+    getNewestArtList(pageNum = 1) {
       this.$axios
         .post(
           "https://be02.bihu.com/bihube-pc/api/content/show/newestArtList",
           {
             category: "news",
-            code: this.$route.query.code || ""
+            code: this.$route.query.code || "",
+            pageNum: pageNum
           }
         )
         .then(res => {
           if (res.data.resMsg === "success") {
             this.articleList = res.data.data.list;
+            this.total = res.data.data.total;
           }
         });
     },
+
+    // 热门/最新Tab切换
     changeTabs(index) {
       switch (index) {
         case 1:
@@ -111,6 +127,15 @@ export default {
         default:
           break;
       }
+    },
+
+    // 点击分页
+    pagechange(currentPage) {
+      if (this.tabIndex == 1) {
+        this.getHotArtList(currentPage);
+      } else {
+        this.getNewestArtList(currentPage);
+      }
     }
   }
 };
@@ -121,6 +146,7 @@ export default {
   .head-list {
     margin-bottom: 0;
     padding: 20px 0 15px 10px;
+    border-bottom: 1px solid #e6e6e6;
     li {
       margin-right: 30px;
       display: inline-block;
@@ -145,7 +171,7 @@ export default {
       height: auto;
       overflow: hidden;
       padding: 10px;
-      border-top: 1px solid #e6e6e6;
+      border-bottom: 1px solid #e6e6e6;
       .avatar {
         a {
           text-decoration: none;

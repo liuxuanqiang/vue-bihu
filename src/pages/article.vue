@@ -47,8 +47,9 @@ export default {
   created() {
     this.getHotArtList();
   },
-  watch: {},
   methods: {
+
+    // 获取文章内容
     getHotArtList() {
       this.$axios
         .post("https://be02.bihu.com/bihube-pc/api/content/show/getArticle2", {
@@ -62,6 +63,7 @@ export default {
               .then(res => {
                 this.articleContent = decodeURIComponent(res.data);
               });
+            // 获取评论
             this.$axios
               .post(
                 "https://be02.bihu.com/bihube-pc/bihu/comment/listrootcomment",

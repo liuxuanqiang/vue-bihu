@@ -97,6 +97,7 @@ export default {
     }
   },
   methods: {
+    // 获取用户信息
     getUserInfo() {
       let userId = this.$route.params.userId;
       this.$axios
@@ -109,6 +110,8 @@ export default {
           }
         });
     },
+
+    // 获取用户文章
     getUserArticleList() {
       let userId = this.$route.params.userId;
       this.$axios
@@ -127,6 +130,8 @@ export default {
           }
         });
     },
+
+    // 获取用户关注
     getUserFollowList() {
       let userId = this.$route.params.userId;
       this.$axios
@@ -143,6 +148,8 @@ export default {
           }
         });
     },
+
+    // 获取用户粉丝
     getUserFansList() {
       let userId = this.$route.params.userId;
       this.$axios
@@ -159,6 +166,8 @@ export default {
           }
         });
     },
+
+    // 文章/关注/粉丝Tab切换
     changeTabs(index) {
       switch (index) {
         case 1:
