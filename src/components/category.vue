@@ -65,4 +65,30 @@ export default {
     }
   }
 }
+@media screen and (max-width: 768px) {
+  .category-menu {
+    position: fixed;
+    right: 50%;
+    left: 0;
+    width: 65%;
+    padding-top: 10px;
+    &:before {
+      position: fixed;
+      top: 118px;
+      left: 62%;
+    }
+    ul {
+      height: calc(100vh - 60px);
+      overflow-y: auto;
+      padding-bottom: 10px;
+      li {
+        width: 28%;
+        margin: 0 0 10px 10px;
+        a {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
 </style>

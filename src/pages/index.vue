@@ -26,7 +26,7 @@
                     </div>
                     <router-link :to="'/article/' + item.id" class="title">
                       <h3>{{item.title}}</h3>
-                      <p class="summary">{{item.snapcontent}} ...</p>
+                      <p class="summary" v-html="item.snapcontent + '...'"></p>
                     </router-link>
                     <p class="thumbs">
                         <span><i class="glyphicon glyphicon-yen"></i>{{item.money}}</span>
@@ -175,6 +175,7 @@ export default {
       padding: 10px;
       border-bottom: 1px solid #e6e6e6;
       .avatar {
+        margin-bottom: 10px;
         a {
           text-decoration: none;
           color: #333;
@@ -187,6 +188,13 @@ export default {
             display: inline-block;
             font-size: 14px;
             font-weight: bold;
+          }
+          @media screen and (max-width: 768px) {
+            img {
+              width: 35px;
+              height: 35px;
+              vertical-align: -12px;
+            }
           }
         }
         .time {
@@ -207,7 +215,7 @@ export default {
           background-repeat: no-repeat;
           img {
             width: 100%;
-            height: 97px;
+            height: 100%;
           }
         }
         .title {
@@ -218,7 +226,10 @@ export default {
           overflow: hidden;
           color: #333;
           h3 {
-            margin-top: 15px;
+            margin-top: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
           }
           .summary {
             color: #777;
@@ -236,6 +247,38 @@ export default {
               margin-right: 3px;
               &.glyphicon-comment {
                 vertical-align: -1px;
+              }
+            }
+          }
+        }
+        @media screen and (max-width: 768px) {
+          .img-outer {
+            width: 120px;
+            height: 66px;
+            margin-right: 10px;
+          }
+          .title {
+            h3 {
+              margin-bottom: 5px;
+              font-size: 16px;
+              font-weight: bold;
+            }
+          }
+          .summary {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .thumbs {
+            left: 145px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            > span {
+              margin-right: 6px;
+              font-size: 12px;
+              i {
+                margin-right: 1px;
               }
             }
           }

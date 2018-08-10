@@ -3,11 +3,17 @@
         <div class="navbar-inner">
             <div class="container">
                 <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" @click="toggleNavbar">
+                      <span class="sr-only">Toggle navigation</span>
+                      <span class="icon-bar"></span>
+                      <span class="icon-bar"></span>
+                      <span class="icon-bar"></span>
+                    </button>
                     <router-link :to="{name:'index'}" class="brand">
                         <img src="https://bihu.com/static/media/logo.81b9b93e.png">
                     </router-link>
                 </div>
-                <div id="navbar" class="navbar-collapse collapse">
+                <div id="navbar" :class="['navbar-collapse', 'collapse', collapseIsShow ? 'in' : '']">
                     <ul class="nav navbar-nav">
                         <li><router-link :to="{name:'index'}">推荐</router-link></li>
                         <li @mouseover="showCategoryMenu" @mouseout="hideCategoryMenu">
@@ -33,6 +39,7 @@ export default {
   data() {
     return {
       hide: false,
+      collapseIsShow: false,
       categoryList: []
     };
   },
@@ -54,6 +61,9 @@ export default {
     },
     hideCategoryMenu() {
       this.hide = false;
+    },
+    toggleNavbar() {
+      this.collapseIsShow = !this.collapseIsShow;
     }
   }
 };
@@ -62,6 +72,12 @@ export default {
 .navbar {
   width: 100%;
   background: #444;
+  .navbar-toggle {
+    margin-right: -15px;
+    .icon-bar {
+      background: #fff;
+    }
+  }
   .navbar-inner {
     background: 0 0;
     border-radius: 0;
@@ -72,16 +88,16 @@ export default {
     padding: 5px;
     .brand {
       display: inline-block;
-      width: 140px;
+      width: 110px;
+      padding: 5px 0;
       img {
         width: 100%;
       }
     }
     .nav {
-      padding-left: 40px;
+      padding-left: 35px;
       li {
         position: relative;
-        float: left;
         a {
           color: #ccc;
           font-size: 16px;
@@ -106,6 +122,17 @@ export default {
         }
       }
     }
+  }
+}
+@media screen and (max-width: 768px) {
+  .navbar-collapse {
+    position: fixed;
+    top: 60px;
+    right: 0;
+    width: calc(35% + 15px);
+    height: calc(100vh - 60px);
+    max-height: 100vh !important;
+    background: #444;
   }
 }
 </style>

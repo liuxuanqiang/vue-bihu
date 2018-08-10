@@ -237,6 +237,7 @@ export default {
     }
   }
   .head-list {
+    margin-bottom: 0;
     padding: 20px 0 15px 0;
     border-bottom: 1px solid #e6e6e6;
     li {
@@ -261,7 +262,8 @@ export default {
       li {
         position: relative;
         list-style: none;
-        height: 127px;
+        height: auto;
+        overflow: hidden;
         padding: 15px 0;
         border-bottom: 1px solid #e6e6e6;
         .img-outer {
@@ -276,7 +278,7 @@ export default {
           background-repeat: no-repeat;
           img {
             width: 100%;
-            height: 97px;
+            height: 100%;
           }
         }
         .title {
@@ -307,6 +309,38 @@ export default {
               margin-right: 3px;
               &.glyphicon-comment {
                 vertical-align: -1px;
+              }
+            }
+          }
+        }
+        @media screen and (max-width: 768px) {
+          .img-outer {
+            width: 120px;
+            height: 66px;
+            margin-right: 10px;
+          }
+          .title {
+            h3 {
+              margin-bottom: 5px;
+              font-size: 16px;
+              font-weight: bold;
+            }
+          }
+          .summary {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .thumbs {
+            left: 130px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            > span {
+              margin-right: 6px;
+              font-size: 11px;
+              i {
+                margin-right: 1px;
               }
             }
           }
