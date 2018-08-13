@@ -1,4 +1,4 @@
-# 使用Vue.js全家桶重构币乎
+# 使用Vue.js重构币乎
 
 > 线上地址：https://liuxuanqiang.github.io/vue-bihu
 
